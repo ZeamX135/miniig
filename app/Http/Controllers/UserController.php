@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use PhpParser\Builder\Function_;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class UserController extends Controller
 {
@@ -50,5 +52,20 @@ class UserController extends Controller
         ]);
 
         return redirect('/home');
+    }
+
+    public function follow($following_id)
+    {
+        $user = Auth::user();
+
+        if($user->following->contains($following_id)) {
+            $user->following()->detach($following_id);
+            $message = ['status' => 'UNFOLLOW'];
+        } else {
+            $user->following()->attach($following_id);
+            $message = ['status' => 'FOLLOW'];
+        }
+
+        return response()->json($message);
     }
 }
